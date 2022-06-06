@@ -1,32 +1,16 @@
-// const usersRouter = require('express').Router();
-// const path = require('path');
+const router = require('express').Router();
+const {
+  getUsers, getUser, createUser, updateUser, updateAvatar,
+} = require('../controllers/users');
 
-// const contents = require('../data/users.json');
+router.get('/', getUsers);
 
-// usersRouter.get('/', (req, res) => {
-//   res.sendFile(path.join(__dirname, '../data/users.json'));
-// });
-// usersRouter.get('/:id', (req, res) => {
-//   const user = contents.find(({ _id: id }) => id === req.params.id);
-//   if (!user) {
-//     res.status(404).send({
-//       message: 'Нет пользователя с таким id',
-//     });
-//     return;
-//   }
-//   res.send(user);
-// });
+router.get('/:id', getUser);
 
-// module.exports = usersRouter;
+router.post('/', createUser);
 
-const usersRouter = require('express').Router();
+router.patch('/me', updateUser);
 
-const { getUsers, getUser, createUser } = require('../controllers/users');
+router.patch('/me/avatar', updateAvatar);
 
-usersRouter.get('/', getUsers);
-
-usersRouter.get('/:userId', getUser);
-
-usersRouter.post('/', createUser);
-
-module.exports = usersRouter;
+module.exports.userRouter = router;
