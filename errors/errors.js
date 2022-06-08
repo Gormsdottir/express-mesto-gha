@@ -12,7 +12,7 @@ module.exports.handleError = (err, res) => {
 
 module.exports.handleReqItemId = (item, res) => {
   if (item === null) {
-    res.status(404).send({ message: `Объект отсутствует в базе` });
+    res.status(404).send({ message: `Объект не найден` });
     return
   }
   res.send({ data: item });
@@ -20,7 +20,7 @@ module.exports.handleReqItemId = (item, res) => {
 
 module.exports.handleIncorrectId = (id, err, req, res) => {6
   if (`req.params.${id}.length` !== 24) {
-    res.status(400).send({ message: `Введен некорректный ID объекта` });
+    res.status(400).send({ message: `Введен некорректный ID` });
     return
   }
   handleError(err, res);
