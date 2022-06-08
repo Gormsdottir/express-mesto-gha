@@ -1,120 +1,42 @@
-const user = require('../models/user');
+const User = require('../models/user');
+const { handleError, handleIncorrectId, handleReqItemId } = require('../utils/utils');
 
-const getUsers = (_, res) => {
-  user
-    .find({})
-    .then((users) => {
-      res.status(200).send(users);
-    })
-    .catch((err) => {
-      if (err.name === 'ValidationError') {
-        res.status(400).send({
-          message: 'Переданы некорректные данные при создании пользователя.',
-        });
-        return;
-      }
-      res.status(500).send({ message: 'Ошибка сервера' });
-    });
+const getUsers = (req, res) => {
+  User.find({})
+    .then((users) => res.send({ data: users }))
+    .catch((err) => handleError(err, res));
 };
 
-const getUser = (req, res) => {
-  const { id } = req.params;
-
-  user
-    .findById(id)
-    .then((users) => {
-      if (!users) {
-        res
-          .status(404)
-          .send({ message: 'Пользователь по указанному id не найден' });
-        return;
-      }
-      res.status(200).send(users);
-    })
-    .catch((err) => {
-      if (err.kind === 'ObjectId') {
-        res.status(400).send({ message: 'Некорректный id' });
-        return;
-      }
-
-      res.status(500).send({ message: 'Ошибка сервера' });
-    });
+const getUserById = (req, res) => {
+  User.findById(req.params.userId)
+    .then((user) => handleReqItemId(user, res))
+    .catch((err) => handleIncorrectId('userId', err, req, res))
 };
 
 const createUser = (req, res) => {
   const { name, about, avatar } = req.body;
-
-  user
-    .create({ name, about, avatar })
-    .then((users) => {
-      res.send({ data: users });
-    })
-    .catch((err) => {
-      if (err.name === 'ValidationError') {
-        res.status(400).send({
-          message: 'Переданы некорректные данные при создании пользователя.',
-        });
-        return;
-      }
-
-      res.status(500).send({ message: 'Ошибка сервера' });
-    });
+  User.create({ name, about, avatar })
+    .then((user) => res.send({ data: user }))
+    .catch((err) => handleError(err, res));
 };
 
 const updateUser = (req, res) => {
-  const id = req.user._id;
   const { name, about } = req.body;
-
-  user
-    .findByIdAndUpdate(id, { name, about }, { new: true, runValidators: true })
-    .then((users) => {
-      if (!users) {
-        res
-          .status(404)
-          .send({ message: 'Пользователь по указанному id не найден' });
-        return;
-      }
-      res.send({ data: users });
-    })
-    .catch((err) => {
-      if (err.name === 'ValidationError') {
-        const fields = Object.keys(err.errors).join(', ');
-        res.status(400).send({ message: `${fields} некорректно` });
-        return;
-      }
-      res.status(500).send({ message: 'Ошибка сервера' });
-    });
+  User.findByIdAndUpdate(req.user._id, { name, about }, { new: true, runValidators: true })
+    .then((user) => res.send(user))
+    .catch((err) => handleError(err, res));
 };
 
 const updateAvatar = (req, res) => {
-  const id = req.user._id;
   const { avatar } = req.body;
-
-  user
-    .findByIdAndUpdate(id, { avatar }, { new: true, runValidators: true })
-    .then((users) => {
-      if (!users) {
-        res
-          .status(404)
-          .send({ message: 'Пользователь по указанному id не найден' });
-        return;
-      }
-      res.send({ data: users });
-    })
-    .catch((err) => {
-      if (err.name === 'ValidationError') {
-        res.status(400).send({
-          message: 'Переданы некорректные данные при обновлении профиля.',
-        });
-        return;
-      }
-      res.status(500).send({ message: 'Ошибка сервера' });
-    });
+  User.findByIdAndUpdate(req.user._id, { avatar }, { new: true, runValidators: true })
+    .then((user) => res.send(user))
+    .catch((err) => handleError(err, res));
 };
 
 module.exports = {
   getUsers,
-  getUser,
+  getUserById,
   createUser,
   updateUser,
   updateAvatar,
