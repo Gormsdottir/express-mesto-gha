@@ -4,18 +4,18 @@ const { Schema } = mongoose;
 const cardSchema = new Schema({
   name: {
     type: String,
-    required: true,
-    minlength: 2,
-    maxlength: 30,
+    required: [true, 'Нужно заполнить это поле'],
+    minlength: [2, 'Должно быть не меньше 2 символов}'],
+    maxlength: [30, 'Должно быть не больше 30 символов'],
   },
   link: {
     type: String,
-    required: true,
+    required: [true, 'Нужно заполнить это поле'],
   },
   owner: {
     type: mongoose.Schema.Types.ObjectId,
     ref: 'user',
-    required: true,
+    required: [true, 'Нужно заполнить это поле'],
   },
   likes: [{
     type: mongoose.Schema.Types.ObjectId,
