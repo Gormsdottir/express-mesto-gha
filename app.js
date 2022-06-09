@@ -21,8 +21,8 @@ app.use((req, res, next) => {
 app.use('/users', require('./routes/users'));
 app.use('/cards', require('./routes/cards'));
 
-app.use((req, res, next) => {
-  res.status(404).send(`Такой страницы нет`)
+app.use((req, res, err, next) => {
+  res.status(404).send({err.message: 'Такой страницы нет'})
 });
 
 app.listen(PORT, () => {
