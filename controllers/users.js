@@ -1,5 +1,5 @@
 const User = require('../models/user');
-const { handleError, handleIncorrectId, handleReqItemId } = require('../errors/errors');
+const { handleError, handleIncorrectId, handleReqItemId } = require('../utils/utils');
 
 const getUsers = (req, res) => {
   User.find({})
@@ -10,7 +10,7 @@ const getUsers = (req, res) => {
 const getUserById = (req, res) => {
   User.findById(req.params.userId)
     .then((user) => handleReqItemId(user, res))
-    .catch((err) => handleIncorrectId('userId', err, req, res))
+    .catch((err) => handleIncorrectId('userId', err, req, res));
 };
 
 const createUser = (req, res) => {
@@ -22,9 +22,11 @@ const createUser = (req, res) => {
 
 const updateUser = (req, res) => {
   const { name, about } = req.body;
-  User.findByIdAndUpdate(req.user._id,
+  User.findByIdAndUpdate(
+    req.user._id,
     { name, about },
-    { new: true, runValidators: true })
+    { new: true, runValidators: true },
+  )
     .then((user) => {
       if (!user) {
         throw new NotFound('Пользователь с указанным _id не найден');
@@ -36,9 +38,11 @@ const updateUser = (req, res) => {
 
 const updateAvatar = (req, res) => {
   const { avatar } = req.body;
-  User.findByIdAndUpdate(req.user._id,
+  User.findByIdAndUpdate(
+    req.user._id,
     { avatar },
-    { new: true, runValidators: true })
+    { new: true, runValidators: true },
+  )
     .then((user) => {
       if (!user) {
         throw new NotFound('Пользователь с указанным _id не найден');
