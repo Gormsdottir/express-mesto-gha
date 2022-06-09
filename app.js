@@ -22,7 +22,7 @@ app.use('/users', require('./routes/users'));
 app.use('/cards', require('./routes/cards'));
 
 app.all('*', (req, res) => {
-  res.status(404).send('Невозможно отобразить страницу');
+  res.status(404).send('<h1>404! Page not found</h1>');
 });
 
 app.listen(PORT, () => {
