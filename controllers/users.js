@@ -1,3 +1,4 @@
+/* eslint-disable no-undef */
 const User = require('../models/user');
 const { handleError, handleIncorrectId, handleReqItemId } = require('../utils/utils');
 

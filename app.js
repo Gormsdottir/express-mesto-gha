@@ -1,3 +1,4 @@
+/* eslint-disable no-console */
 const express = require('express');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
@@ -21,8 +22,8 @@ app.use((req, res, next) => {
 app.use('/users', require('./routes/users'));
 app.use('/cards', require('./routes/cards'));
 
-app.all('*', (req, res) => {
-  res.status(404).send('Невозможно отобразить страницу');
+app.use((req, res) => {
+  res.status(404).send({ message: 'Такой страницы нет' });
 });
 
 app.listen(PORT, () => {
