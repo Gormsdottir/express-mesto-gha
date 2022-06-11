@@ -16,9 +16,14 @@ const getCards = (req, res, next) => {
 const createCard = (req, res, next) => {
   const { name, link } = req.body;
   const owner = req.user.id;
-  Card.create({ name, link, owner })
-    .then((card) => res.status(201).send(card))
-    .catch(next);
+
+  return Card.create({ name, link, owner })
+    .then((card) => res.status(201).send({ card }))
+    .catch((err) => {
+      if (err.name === 'ValidationError' || err.name === 'CastError') {
+        res.status(400).send({ message: 'Переданы некорректные данные при создании карточки.' });
+      } res.status(500).send({ message: 'Ошибка по умолчанию.' });
+    });
 };
 
 const deleteCard = (req, res, next) => {
