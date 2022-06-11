@@ -24,9 +24,9 @@ app.post('/signin', loginValid, login);
 
 mongoose.connect('mongodb://localhost:27017/mestodb');
 
-app.use('/cards', require('./routes/cards'));
-
 app.use(auth);
+
+app.use('/cards', require('./routes/cards'));
 
 app.use(errors());
 
