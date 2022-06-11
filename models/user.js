@@ -1,7 +1,7 @@
 /* eslint-disable func-names */
 const mongoose = require('mongoose');
 const bcrypt = require('bcryptjs');
-const { isEmail } = require('validator');
+const { isEmail, isURL } = require('validator');
 
 const { Schema } = mongoose;
 
@@ -24,6 +24,10 @@ const userSchema = new Schema({
     type: String,
     required: true,
     default: 'https://pictures.s3.yandex.net/resources/jacques-cousteau_1604399756.png',
+    validate: {
+      validator: (v) => isURL(v),
+      message: 'Неккоректный url адрес',
+    },
   },
   email: {
     type: String,
