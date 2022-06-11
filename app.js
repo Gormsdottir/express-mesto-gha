@@ -1,17 +1,23 @@
+/* eslint-disable no-console */
 const express = require('express');
-const { errors } = require('celebrate');
 const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
-const { createUser, login } = require('./controllers/users');
-const auth = require('./middlewares/auth');
+const { errors } = require('celebrate');
+
+const NotFoundError = require('./errors/NotFoundError');
+
 const { registerValid, loginValid } = require('./middlewares/validation');
 
-const { PORT = 3000 } = process.env;
+const { createUser, login } = require('./controllers/users');
+const auth = require('./middlewares/auth');
 
+const { PORT = 3000 } = process.env;
 const app = express();
 
 app.use(bodyParser.json());
 app.use(bodyParser.urlencoded({ extended: true }));
+
+mongoose.connect('mongodb://localhost:27017/mestodb');
 
 app.post('/signup', registerValid, createUser);
 app.post('/signin', loginValid, login);
@@ -24,4 +30,21 @@ app.use(auth);
 
 app.use(errors());
 
-app.listen(PORT);
+app.use('/', (req, res, next) => {
+  next(new NotFoundError('Страница не существует'));
+});
+
+app.use((err, req, res, next) => {
+  const { statusCode = 500, message } = err;
+  res.status(statusCode)
+    .send({
+      message: statusCode === 500
+        ? 'Ошибка сервера'
+        : message,
+    });
+  next();
+});
+
+app.listen(PORT, () => {
+  console.log(`App listening on port ${PORT}`);
+});
