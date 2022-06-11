@@ -9,62 +9,55 @@ const DuplicatedError = require('../errors/DuplicatedError');
 
 const getUsers = (req, res, next) => {
   User.find({})
-    .then((users) => {
-      res.status(200).send(users);
+    .then((user) => {
+      res.status(200).send(user);
     })
-    .catch((err) => {
-      next(err);
-    });
+    .catch(next);
 };
 
-const getUserById = (req, res, next) => {
-  User.findById(req.params.userId)
-    .then((users) => {
-      if (!users) {
-        throw new NotFoundError('Такой пользователь не найден');
-      }
-      res.send({ data: users });
-    })
-    .catch((err) => {
-      if (err.name === 'CastError') {
-        next(new WrongDataError('Неверный ID'));
-        return;
-      }
-      next(err);
-    });
-};
+const getUserById = (req, res) => User.findById(req.params.userId)
+  .then((user) => {
+    if (!user) {
+      throw new NotFoundError('Пользователь не найден');
+    } else res.send({ user });
+  })
+  .catch((err) => {
+    if (err.name === 'CastError') {
+      res.status(400).send({ message: 'Переданы некорректные данные при создании пользователя.' });
+    } else res.status(500).send({ message: 'Ошибка' });
+  });
 
 const getUserMe = (req, res, next) => {
   User.findById(req.user._id)
-    .then((users) => {
-      res.status(200).send({ data: users });
+    .then((user) => {
+      res.status(200).send({ data: user });
     })
-    .catch((err) => next(err));
+    .catch(next);
 };
 
 const createUser = (req, res, next) => {
   const {
     name,
+    avatar,
+    about,
+    password,
+    email,
+  } = req.body;
+
+  return bcrypt.hash(password, 10).then((hash) => User.create({
+    name,
     about,
     avatar,
     email,
-  } = req.body;
-  bcrypt.hash(req.body.password, 10)
-    .then((hash) => User.create({
+    password: hash,
+  }).then(() => res.send({
+    data: {
       name,
       about,
       avatar,
       email,
-      password: hash,
-    }))
-    .then(() => res.status(201).send({
-      data: {
-        name,
-        about,
-        avatar,
-        email,
-      },
-    }))
+    },
+  })))
     .catch((err) => {
       if (err.name === 'ValidationError') {
         next(new WrongDataError('Неверные данные'));
