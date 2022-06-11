@@ -67,18 +67,25 @@ const createUser = (req, res, next) => {
       return bcrypt.hash(password, 10);
     })
     .then((hash) => User.create({
-      name, about, avatar, email, password: hash,
+      name,
+      about,
+      avatar,
+      email,
+      password: hash,
+    }))
+    .then((user) => User.findOne({ _id: user._id }))
+    .then((user) => {
+      res.status(200).send(user);
     })
-      .then((user) => res.status(201).send({ user }))
-      .catch((err) => {
-        if (err.name === 'ValidationError') {
-          next(new WrongDataError('Переданы некорректные данные.'));
-        } else if (err.code === 11000) {
-          next(new DuplicatedError({ message: err.errorMessage }));
-        } else {
-          next(err);
-        }
-      }));
+    .catch((err) => {
+      if (err.name === 'ValidationError') {
+        next(new WrongDataError('Переданы некорректные данные.'));
+      } else if (err.code === 11000) {
+        next(new DuplicatedError({ message: err.errorMessage }));
+      } else {
+        next(err);
+      }
+    });
 };
 
 const updateUserInfo = (req, res, next) => {
@@ -124,12 +131,25 @@ const updateUserAvatar = (req, res, next) => {
 const login = (req, res, next) => {
   const { email, password } = req.body;
 
-  return User.findUserByCredentials(email, password)
+  User.findOne({ email }).select('+password')
     .then((user) => {
-      const token = jwt.sign({ _id: user._id }, 'some-secret-key', { expiresIn: '7d' });
-      res.send({ token });
-    }).catch(() => {
-      next(new AuthError('Неверный пароль или почта'));
+      if (!user) {
+        next(new AuthError('Неверный логин или пароль'));
+      }
+      return bcrypt.compare(password, user.password);
+    })
+    .then((isValid) => {
+      if (!isValid) {
+        next(new AuthError('Неверный логин или пароль'));
+      }
+      const token = jwt.sign({ email }, 'some-secret-key', { expiresIn: '7d' });
+      res.send({ jwt: token });
+    })
+    .catch((err) => {
+      if (err.name === 'ValidationError') {
+        return res.status(401).send({ message: err.errorMessage });
+      }
+      return next(err);
     });
 };
 
