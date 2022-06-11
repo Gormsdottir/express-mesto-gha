@@ -1,6 +1,10 @@
 const usersRouter = require('express').Router();
 const auth = require('../middlewares/auth');
-const { userAvatarValid, loginValid, registerValid } = require('../middlewares/validation');
+const {
+  userAvatarValid,
+  loginValid,
+  registerValid,
+} = require('../middlewares/validation');
 
 const {
   getUsers,

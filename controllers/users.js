@@ -142,13 +142,13 @@ const login = (req, res, next) => {
         next(new AuthError('Неверный логин или пароль'));
       }
       const token = jwt.sign({ email }, 'some-secret-key', { expiresIn: '7d' });
-      res.send({ jwt: token });
+      res.status(201).send({ message: 'Авторизация успешна' }, { jwt: token });
     })
     .catch((err) => {
-      if (err.name === 'ValidationError') {
-        return res.status(400).send({ message: err.errorMessage });
+      if (err.message === 'IncorrectEmail') {
+        next(new AuthError('Неверный логин или пароль'));
       }
-      return next(err);
+      next(err);
     });
 };
 
