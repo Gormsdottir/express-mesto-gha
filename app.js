@@ -4,8 +4,6 @@ const mongoose = require('mongoose');
 const bodyParser = require('body-parser');
 const { errors } = require('celebrate');
 
-const NotFoundError = require('./errors/NotFoundError');
-
 const usersRouter = require('./routes/users');
 const cardRouter = require('./routes/cards');
 const { login } = require('./controllers/users');
@@ -31,8 +29,8 @@ app.use('/cards', cardRouter);
 
 app.use(errors());
 
-app.use('/', (req, res, next) => {
-  next(new NotFoundError('Страница не существует'));
+app.use((req, res) => {
+  res.status(404).send({ message: 'Такой страницы нет' });
 });
 
 app.use((err, req, res, next) => {

@@ -1,6 +1,7 @@
 const Cards = require('../models/card');
 const NotFoundError = require('../errors/NotFoundError');
 const WrongDataError = require('../errors/WrongDataError');
+const DeleteError = require('../errors/DeleteError');
 
 const getCards = (req, res, next) => {
   Cards.find({})
@@ -69,22 +70,27 @@ const dislikeCard = (req, res, next) => {
 };
 
 const deleteCard = (req, res, next) => {
-  Cards.findByIdAndRemove(req.params.cardId)
-    .orFail(() => {
+  Cards.findById(req.params.cardId).then((card) => {
+    if (!card) {
       throw new NotFoundError('Карточка не найдена');
-    })
-    .then((card) => {
-      if (!card) {
-        next(new NotFoundError('Карточка не найдена'));
-      }
-      res.status(200).send({ data: card, message: 'Карточка удалена' });
-    })
-    .catch((err) => {
-      if (err.name === 'CastError') {
-        next(new WrongDataError({ message: 'Переданы некорректные данные' }));
-      }
-      next(err);
-    });
+    }
+    if (req.user._id === card.owner.toString()) {
+      Cards.findByIdAndRemove(req.params.cardId)
+        .then(() => {
+          res.send({ data: card });
+        })
+        .catch((err) => {
+          if (err.name === 'CastError') {
+            next(new WrongDataError('неверные данные'));
+            return;
+          }
+          next(err);
+        });
+      return;
+    }
+    throw new DeleteError('Невозможно удалить карту других пользователей');
+  })
+    .catch((err) => next(err));
 };
 
 module.exports = {
