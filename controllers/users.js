@@ -67,25 +67,18 @@ const createUser = (req, res, next) => {
       return bcrypt.hash(password, 10);
     })
     .then((hash) => User.create({
-      name,
-      about,
-      avatar,
-      email,
-      password: hash,
-    }))
-    .then((user) => User.findOne({ _id: user._id })) // прячет пароль
-    .then((user) => {
-      res.status(200).send(user);
+      name, about, avatar, email, password: hash,
     })
-    .catch((err) => {
-      if (err.name === 'ValidationError') {
-        next(new WrongDataError('Переданы некорректные данные.'));
-      } else if (err.code === 11000) {
-        next(new DuplicatedError({ message: err.errorMessage }));
-      } else {
-        next(err);
-      }
-    });
+      .then((user) => res.status(201).send({ user }))
+      .catch((err) => {
+        if (err.name === 'ValidationError') {
+          next(new WrongDataError('Переданы некорректные данные.'));
+        } else if (err.code === 11000) {
+          next(new DuplicatedError({ message: err.errorMessage }));
+        } else {
+          next(err);
+        }
+      }));
 };
 
 const updateUserInfo = (req, res, next) => {
