@@ -7,7 +7,7 @@ const WrongDataError = require('../errors/WrongDataError');
 const AuthError = require('../errors/AuthError');
 const DuplicatedError = require('../errors/DuplicatedError');
 
-const getUser = (req, res, next) => {
+const getUsers = (req, res, next) => {
   User.find({})
     .then((user) => res.status(200).send(user))
     .catch((err) => next(err));
@@ -149,7 +149,7 @@ const login = (req, res, next) => {
 };
 
 module.exports = {
-  getUser,
+  getUsers,
   getUserById,
   getUserMe,
   createUser,
