@@ -7,13 +7,17 @@ const WrongDataError = require('../errors/WrongDataError');
 const AuthError = require('../errors/AuthError');
 const DuplicatedError = require('../errors/DuplicatedError');
 
-module.exports.getUsers = (req, res, next) => {
+const getUsers = (req, res, next) => {
   User.find({})
-    .then((users) => res.send({ data: users }))
-    .catch(next);
+    .then((users) => {
+      res.status(200).send(users);
+    })
+    .catch((err) => {
+      next(err);
+    });
 };
 
-module.exports.getUserById = (req, res, next) => {
+const getUserById = (req, res, next) => {
   User.findById(req.params.userId)
     .then((users) => {
       if (!users) {
@@ -30,7 +34,7 @@ module.exports.getUserById = (req, res, next) => {
     });
 };
 
-module.exports.findUserMe = (req, res, next) => {
+const getUserMe = (req, res, next) => {
   User.findById(req.user._id)
     .then((users) => {
       res.status(200).send({ data: users });
@@ -38,7 +42,7 @@ module.exports.findUserMe = (req, res, next) => {
     .catch((err) => next(err));
 };
 
-module.exports.createUsers = (req, res, next) => {
+const createUser = (req, res, next) => {
   const {
     name,
     about,
@@ -74,7 +78,7 @@ module.exports.createUsers = (req, res, next) => {
     });
 };
 
-module.exports.updateUserInfo = (req, res, next) => {
+const updateUserInfo = (req, res, next) => {
   const { name, about } = req.body;
   User.findByIdAndUpdate(req.user._id, { name, about }, {
     new: true,
@@ -96,7 +100,7 @@ module.exports.updateUserInfo = (req, res, next) => {
     });
 };
 
-module.exports.updateUserAvatar = (req, res, next) => {
+const updateUserAvatar = (req, res, next) => {
   const { avatar } = req.body;
   User.findByIdAndUpdate(req.user._id, { avatar }, {
     new: true,
@@ -118,15 +122,13 @@ module.exports.updateUserAvatar = (req, res, next) => {
     });
 };
 
-module.exports.login = (req, res, next) => {
+const login = (req, res, next) => {
   const { email, password } = req.body;
 
   return User.findUserByCredentials(email, password)
     .then((user) => {
-    // создадим токен
       const token = jwt.sign({ _id: user._id }, 'some-secret-key', { expiresIn: '7d' });
 
-      // вернём токен
       res.send({ token });
     })
     .catch((err) => {
@@ -135,4 +137,14 @@ module.exports.login = (req, res, next) => {
       }
       next(err);
     });
+};
+
+module.exports = {
+  getUsers,
+  getUserById,
+  getUserMe,
+  createUser,
+  updateUserInfo,
+  updateUserAvatar,
+  login,
 };
