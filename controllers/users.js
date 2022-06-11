@@ -147,7 +147,7 @@ const login = (req, res, next) => {
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        return res.status(401).send({ message: err.errorMessage });
+        return res.status(400).send({ message: err.errorMessage });
       }
       return next(err);
     });
