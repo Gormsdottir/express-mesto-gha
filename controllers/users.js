@@ -4,7 +4,6 @@ const User = require('../models/user');
 
 const NotFoundError = require('../errors/NotFoundError');
 const WrongDataError = require('../errors/WrongDataError');
-const AuthError = require('../errors/AuthError');
 const DuplicatedError = require('../errors/DuplicatedError');
 
 const getUsers = (req, res, next) => {
@@ -134,7 +133,7 @@ const login = (req, res, next) => {
   User.findOne({ email }).select('+password')
     .then((user) => {
       if (!user) {
-        next(new AuthError('Неверный логин или пароль'));
+        next(new WrongDataError('Неверный логин или пароль'));
       }
       return bcrypt.compare(password, user.password);
     })
