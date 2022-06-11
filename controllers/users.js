@@ -1,10 +1,9 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/user');
-
+const AuthError = require('../errors/AuthError');
 const NotFoundError = require('../errors/NotFoundError');
 const WrongDataError = require('../errors/WrongDataError');
-const AuthError = require('../errors/AuthError');
 const DuplicatedError = require('../errors/DuplicatedError');
 
 const getUsers = (req, res, next) => {
