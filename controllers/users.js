@@ -140,7 +140,7 @@ const login = (req, res, next) => {
     })
     .then((isValid) => {
       if (!isValid) {
-        next(new AuthError('Неверный логин или пароль'));
+        next(new WrongDataError('Неверный логин или пароль'));
       }
       const token = jwt.sign({ email }, 'some-secret-key', { expiresIn: '7d' });
       res.send({ jwt: token });
