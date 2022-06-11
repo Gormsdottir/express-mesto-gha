@@ -134,13 +134,13 @@ const login = (req, res, next) => {
   User.findOne({ email }).select('+password')
     .then((user) => {
       if (!user) {
-        next(new AuthError('Неверный логин или пароль'));
+        next(new WrongDataError('Неверные данные'));
       }
       return bcrypt.compare(password, user.password);
     })
     .then((isValid) => {
       if (!isValid) {
-        next(new WrongDataError('Неверный логин или пароль'));
+        next(new AuthError('Неверный логин или пароль'));
       }
       const token = jwt.sign({ email }, 'some-secret-key', { expiresIn: '7d' });
       res.send({ jwt: token });
