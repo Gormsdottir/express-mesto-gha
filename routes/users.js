@@ -1,10 +1,5 @@
 const usersRouter = require('express').Router();
 const { celebrate, Joi } = require('celebrate');
-// const {
-//   userAvatarValid,
-//   loginValid,
-//   registerValid,
-// } = require('../middlewares/validation');
 
 const {
   getUsers,
@@ -15,14 +10,6 @@ const {
   updateUserAvatar,
   login,
 } = require('../controllers/users');
-
-// usersRouter.get('/', auth, getUsers);
-// usersRouter.get('/:userId', auth, getUserById);
-// usersRouter.get('/me', auth, getUserMe);
-// usersRouter.post('/signup', registerValid, createUser);
-// usersRouter.patch('/me', auth, userAvatarValid, updateUserInfo);
-// usersRouter.patch('/me/avatar', userAvatarValid, updateUserAvatar);
-// usersRouter.post('/signin', loginValid, login);
 
 usersRouter.get('/', getUsers);
 
