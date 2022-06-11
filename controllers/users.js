@@ -128,7 +128,7 @@ const updateUserAvatar = (req, res, next) => {
     });
 };
 
-const login = (req, res) => {
+const login = (req, res, next) => {
   const { email, password } = req.body;
 
   return User.findUserByCredentials(email, password)
@@ -136,9 +136,7 @@ const login = (req, res) => {
       const token = jwt.sign({ _id: user._id }, 'some-secret-key', { expiresIn: '7d' });
       res.send({ token });
     }).catch(() => {
-      res
-        .status(401)
-        .send({ message: 'Неверный пароль или почта' });
+      next(new AuthError('Неверный пароль или почта'));
     });
 };
 
