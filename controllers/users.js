@@ -128,18 +128,17 @@ const updateUserAvatar = (req, res, next) => {
     });
 };
 
-const login = (req, res, next) => {
+const login = (req, res) => {
   const { email, password } = req.body;
+
   return User.findUserByCredentials(email, password)
     .then((user) => {
       const token = jwt.sign({ _id: user._id }, 'some-secret-key', { expiresIn: '7d' });
-      res.status(201).send({ message: 'Авторизация успешна', token });
-    })
-    .catch((err) => {
-      if (err.message === 'IncorrectEmail') {
-        next(new AuthError('Не правильный логин или пароль'));
-      }
-      next(err);
+      res.send({ token });
+    }).catch(() => {
+      res
+        .status(401)
+        .send({ message: 'Неверный пароль или почта' });
     });
 };
 
