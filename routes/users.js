@@ -1,6 +1,5 @@
 const usersRouter = require('express').Router();
 const { celebrate, Joi } = require('celebrate');
-const auth = require('../middlewares/auth');
 // const {
 //   userAvatarValid,
 //   loginValid,
@@ -25,11 +24,11 @@ const {
 // usersRouter.patch('/me/avatar', userAvatarValid, updateUserAvatar);
 // usersRouter.post('/signin', loginValid, login);
 
-usersRouter.get('/', auth, getUsers);
+usersRouter.get('/', getUsers);
 
-usersRouter.get('/me', auth, getUserMe);
+usersRouter.get('/me', getUserMe);
 
-usersRouter.get('/:userId', auth, celebrate({
+usersRouter.get('/:userId', celebrate({
   params: Joi.object().keys({
     userId: Joi.string().hex().length(24),
   }),
@@ -45,7 +44,7 @@ usersRouter.post('/signup', celebrate({
   }),
 }), createUser);
 
-usersRouter.patch('/me', auth, celebrate({
+usersRouter.patch('/me', celebrate({
   body: Joi.object().keys({
     name: Joi.string().required().min(2).max(30),
     about: Joi.string().required().min(2),
