@@ -126,8 +126,11 @@ const login = (req, res, next) => {
       res.send({ token });
     })
     .catch(() => {
+      if(!email || !password){
+      next(new AuthError('Неверный логин или пароль'));
+    } else {
       next(new WrongDataError('Неверный логин или пароль'));
-    });
+    }});
 };
 
 module.exports = {
