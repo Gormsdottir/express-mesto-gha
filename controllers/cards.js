@@ -50,9 +50,6 @@ const dislikeCard = (req, res, next) => {
       throw new NotFoundError('Карточка не найдена');
     })
     .then((card) => {
-      if (!card) {
-        next(new NotFoundError('Карточка не найдена'));
-      }
       res.status(200).send({ data: card });
     })
     .catch((err) => {
@@ -65,9 +62,6 @@ const dislikeCard = (req, res, next) => {
 
 const deleteCard = (req, res, next) => {
   Cards.findById(req.params.cardId).then((card) => {
-    if (!card) {
-      throw new NotFoundError('Карточка не найдена');
-    }
     if (req.user._id === card.owner.toString()) {
       Cards.findByIdAndRemove(req.params.cardId)
         .then(() => {
