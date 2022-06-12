@@ -1,5 +1,6 @@
 const usersRouter = require('express').Router();
 const { celebrate, Joi } = require('celebrate');
+const auth = require('../middlewares/auth');
 
 const {
   getUsers,
@@ -11,11 +12,11 @@ const {
   login,
 } = require('../controllers/users');
 
-usersRouter.get('/', getUsers);
+usersRouter.get('/users', auth, getUsers);
 
-usersRouter.get('/me', getUserMe);
+usersRouter.get('/users/me', auth, getUserMe);
 
-usersRouter.get('/:userId', celebrate({
+usersRouter.get('/users/:userId', auth, celebrate({
   params: Joi.object().keys({
     userId: Joi.string().hex().length(24),
   }),
@@ -31,14 +32,14 @@ usersRouter.post('/signup', celebrate({
   }),
 }), createUser);
 
-usersRouter.patch('/me', celebrate({
+usersRouter.patch('/users/me', auth, celebrate({
   body: Joi.object().keys({
     name: Joi.string().required().min(2).max(30),
     about: Joi.string().required().min(2).max(30),
   }),
 }), updateUserInfo);
 
-usersRouter.patch('/me/avatar', celebrate({
+usersRouter.patch('/users/me/avatar', auth, celebrate({
   body: Joi.object().keys({
     avatar: Joi.string().regex(/^https?:\/\/(www\.)?[-a-zA-Z0-9@:%._+~#=]{1,256}\.[a-zA-Z0-9()]{1,6}\b([-a-zA-Z0-9()@:%_+.,~#?&//=!]*$)/),
   }),

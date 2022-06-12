@@ -128,12 +128,8 @@ const login = (req, res, next) => {
       res.send({ token });
     })
     .catch(() => {
-      if (err.name === 'CastError') {
-        next(new WrongDataError('Переданы некорректные данные.'));
-      } else {
       throw new AuthError('Неверный логин или пароль');
-    }
-  })
+    })
     .catch(next);
 };
 

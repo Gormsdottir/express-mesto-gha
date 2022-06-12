@@ -19,13 +19,8 @@ mongoose.connect('mongodb://localhost:27017/mestodb', {
   useNewUrlParser: true,
 });
 
-app.post('/signin', login);
-app.post('/signup', usersRouter);
-
-app.use(auth);
-
-app.use('/users', usersRouter);
-app.use('/cards', cardRouter);
+app.use('/', userRouter);
+app.use('/', cardRouter);
 
 app.use(errors());
 
