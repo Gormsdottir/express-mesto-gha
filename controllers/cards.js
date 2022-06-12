@@ -2,32 +2,42 @@ const Cards = require('../models/card');
 const NotFoundError = require('../errors/NotFoundError');
 const WrongDataError = require('../errors/WrongDataError');
 const DeleteError = require('../errors/DeleteError');
+const ServerError = require('../error/ServerError');
 
-const getCards = (req, res, next) => {
+const getCards = (_, res, next) => {
   Cards.find({})
-    .then((cards) => res.status(200).send(cards))
-    .catch((err) => next(err));
+    .then((cards) => {
+      res.status(200).send(cards);
+    })
+    .catch(() => {
+      next(new ServerError('Произошла ошибка'));
+    });
 };
 
 const createCard = (req, res, next) => {
   const { name, link } = req.body;
-  const ownerId = req.user._id;
-  Cards.create({ name, link, owner: ownerId })
+  const owner = req.user._id;
+  Cards.create({ name, link, owner })
     .then((card) => {
-      res.status(200).send({ data: card });
+      res.status(201).send({ data: card });
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        next(new WrongDataError({ message: err.errorMessage }));
+        const fields = Object.keys(err.errors).join(', ');
+        return next(
+          new BadRequestError(
+            `Переданы некорректные данные при создании карточки: ${fields}`,
+          ),
+        );
       }
-      next(err);
+      return next(new ServerError('Произошла ошибка'));
     });
 };
 
 const likeCard = (req, res, next) => {
   Cards.findByIdAndUpdate(
     req.params.cardId,
-    { $addToSet: { likes: req.user._id } }, // добавить _id в массив, если его там нет
+    { $addToSet: { likes: req.user._id } },
     { new: true },
   )
     .orFail(() => {
