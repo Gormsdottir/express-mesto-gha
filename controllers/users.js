@@ -1,6 +1,7 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/user');
+const AuthError = require('../errors/AuthError');
 const NotFoundError = require('../errors/NotFoundError');
 const WrongDataError = require('../errors/WrongDataError');
 const DuplicatedError = require('../errors/DuplicatedError');
@@ -120,33 +121,16 @@ const updateUserAvatar = (req, res, next) => {
 
 const login = (req, res, next) => {
   const { email, password } = req.body;
-  if (!email || !password) {
-    throw new ValidationError('Не верный логин или пароль');
-  }
-  const validEmail = validator.isEmail(email);
-  if (!validEmail) {
-    throw new ValidationError('Некоректный email');
-  }
-  User.findOne({ email }).select('+password')
+
+  return User.findUserByCredentials(email, password)
     .then((user) => {
-      if (!user) {
-        throw new UnauthorizedError('Неправильные почта или пароль');
-      }
-      return bcrypt.compare(password, user.password)
-        .then((matched) => {
-          if (!matched) {
-            throw new UnauthorizedError('Неправильные почта или пароль');
-          }
-          return user;
-        });
+      const token = jwt.sign({ _id: user._id }, 'some-secret-key', { expiresIn: '7d' });
+      res.send({ token });
     })
-    .then((user) => generateToken({ id: user._id }))
-    .then((token) => res.status(200).send({ token }))
-    .catch(
-      (err) => {
-        next(err);
-      },
-    );
+    .catch(() => {
+      throw new AuthError('Неверный логин или пароль');
+    })
+    .catch(next);
 };
 
 module.exports = {
