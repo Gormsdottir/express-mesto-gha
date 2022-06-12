@@ -128,7 +128,9 @@ const login = (req, res, next) => {
       res.send({ token });
     })
     .catch(() => {
+      if(!user){
       throw new AuthError('Неверный логин или пароль');
+    }
     })
     .catch(next);
 };
