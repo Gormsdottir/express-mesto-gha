@@ -14,10 +14,17 @@ const getUsers = (req, res, next) => {
 const getUserMe = (req, res, next) => {
   User.findById(req.user._id)
     .then((user) => {
-      res.status(200).send({ data: user });
+      if (!user._id) {
+        next(new NotFoundError('Пользователь не найден'));
+      }
+      res.status(200).send(user);
     })
-    .catch(() => {
-      next(new ServerError('Произошла ошибка'));
+    .catch((err) => {
+      if (err.name === 'CastError') {
+        next(new WrongDataError('Переданы некорректные данные.'));
+      } else {
+        next(err);
+      }
     });
 };
 
