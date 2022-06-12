@@ -1,6 +1,7 @@
 const bcrypt = require('bcryptjs');
 const jwt = require('jsonwebtoken');
 const User = require('../models/user');
+const AuthError = require('../errors/AuthError');
 const NotFoundError = require('../errors/NotFoundError');
 const WrongDataError = require('../errors/WrongDataError');
 const DuplicatedError = require('../errors/DuplicatedError');
@@ -126,11 +127,8 @@ const login = (req, res, next) => {
       res.send({ token });
     })
     .catch(() => {
-      if(!email || !password){
       next(new AuthError('Неверный логин или пароль'));
-    } else {
-      next(new WrongDataError('Неверный логин или пароль'));
-    }});
+    });
 };
 
 module.exports = {
