@@ -20,15 +20,8 @@ mongoose.connect('mongodb://localhost:27017/mestodb', {
 app.use('/', usersRouter);
 app.use('/', cardRouter);
 
-app.use((err, req, res, next) => {
-  const { statusCode = 404, message } = err;
-  res.status(statusCode)
-    .send({
-      message: statusCode === 404
-        ? 'Страница не найдена'
-        : message,
-    });
-  next();
+app.use('*', (req, res, next) => {
+  next(new NotFoundError('Страница не найдена'));
 });
 
 app.use(errors());
