@@ -14,7 +14,6 @@ const createCard = (req, res, next) => {
   const ownerId = req.user._id;
   Cards.create({ name, link, owner: ownerId })
     .then((card) => {
-        next(new NotFoundError('Пользователь не найден'));
       res.status(200).send({ data: card });
     })
     .catch((err) => {
@@ -35,9 +34,6 @@ const likeCard = (req, res, next) => {
       throw new NotFoundError('Карточка не найдена');
     })
     .then((card) => {
-      if (!card) {
-        next(new NotFoundError('Карточка не найдена'));
-      }
       res.status(200).send({ data: card });
     })
     .catch((err) => {
