@@ -8,6 +8,7 @@ const usersRouter = require('./routes/users');
 const cardRouter = require('./routes/cards');
 const { login } = require('./controllers/users');
 const auth = require('./middlewares/auth');
+const PageNotFound = require('./errors/PageNotFound');
 
 const { PORT = 3000 } = process.env;
 const app = express();
@@ -29,15 +30,13 @@ app.use('/cards', cardRouter);
 
 app.use(errors());
 
+app.use('*', auth, PageNotFound);
+
 app.use((err, req, res, next) => {
-  const { statusCode = 500, message } = err;
-  res.status(statusCode)
-    .send({
-      message: statusCode === 500
-        ? 'Ошибка сервера'
-        : message,
-    });
-  next();
+  const statusCode = err.statusCode || 500;
+  const message = statusCode === 500 ? 'На сервере произошла ошибка' : err.message;
+
+  res.status(statusCode).send({ message });
 });
 
 app.listen(PORT, () => {
