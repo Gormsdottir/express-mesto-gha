@@ -23,12 +23,9 @@ const createCard = (req, res, next) => {
     })
     .catch((err) => {
       if (err.name === 'ValidationError') {
-        const fields = Object.keys(err.errors).join(', ');
         return next(
-          new BadRequestError(
-            `Переданы некорректные данные при создании карточки: ${fields}`,
-          ),
-        );
+          new WrongDataError('Переданы некорректные данные при создании карточки)',
+        ));
       }
       return next(new ServerError('Произошла ошибка'));
     });
