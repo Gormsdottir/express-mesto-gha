@@ -8,7 +8,6 @@ const usersRouter = require('./routes/users');
 const cardRouter = require('./routes/cards');
 const { login } = require('./controllers/users');
 const auth = require('./middlewares/auth');
-const PageNotFound = require('./errors/PageNotFound');
 
 const { PORT = 3000 } = process.env;
 const app = express();
@@ -29,8 +28,6 @@ app.use('/users', usersRouter);
 app.use('/cards', cardRouter);
 
 app.use(errors());
-
-app.use('*', auth, PageNotFound);
 
 app.use((err, req, res, next) => {
   const { statusCode = 500, message } = err;

@@ -2,7 +2,7 @@ const Cards = require('../models/card');
 const NotFoundError = require('../errors/NotFoundError');
 const WrongDataError = require('../errors/WrongDataError');
 const DeleteError = require('../errors/DeleteError');
-const ServerError = require('../error/ServerError');
+const ServerError = require('../errors/ServerError');
 
 const getCards = (_, res, next) => {
   Cards.find({})
