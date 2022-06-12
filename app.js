@@ -33,11 +33,15 @@ app.use(errors());
 app.use('*', auth, PageNotFound);
 
 app.use((err, req, res, next) => {
-  const statusCode = err.statusCode || 500;
-  const message = statusCode === 500 ? 'На сервере произошла ошибка' : err.message;
-
-  res.status(statusCode).send({ message });
-});
+  const { statusCode = 500, message } = err;
+  res.status(statusCode)
+    .send({
+      message: statusCode === 500
+        ? 'Ошибка сервера'
+        : message,
+    });
+  next();
+}); 
 
 app.listen(PORT, () => {
   console.log(`App listening on port ${PORT}`);
