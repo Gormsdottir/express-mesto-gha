@@ -132,7 +132,8 @@ const login = (req, res, next) => {
         next(new WrongDataError('Переданы некорректные данные.'));
       } else {
       throw new AuthError('Неверный логин или пароль');
-    })
+    }
+  })
     .catch(next);
 };
 
