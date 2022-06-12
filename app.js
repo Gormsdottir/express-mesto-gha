@@ -6,6 +6,7 @@ const { errors } = require('celebrate');
 
 const usersRouter = require('./routes/users');
 const cardRouter = require('./routes/cards');
+const NotFoundError = require('./errors/NotFoundError');
 
 const { PORT = 3000 } = process.env;
 const app = express();
