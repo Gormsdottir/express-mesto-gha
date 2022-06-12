@@ -17,6 +17,7 @@ const getCards = (_, res, next) => {
 const createCard = (req, res, next) => {
   const { name, link } = req.body;
   const owner = req.user._id;
+
   Cards.create({ name, link, owner })
     .then((card) => {
       res.status(201).send({ data: card });
@@ -24,8 +25,8 @@ const createCard = (req, res, next) => {
     .catch((err) => {
       if (err.name === 'ValidationError') {
         return next(
-          new WrongDataError('Переданы некорректные данные при создании карточки)',
-        ));
+          new WrongDataError('Переданы некорректные данные при создании карточки'),
+        );
       }
       return next(new ServerError('Произошла ошибка'));
     });
@@ -68,27 +69,24 @@ const dislikeCard = (req, res, next) => {
 };
 
 const deleteCard = (req, res, next) => {
-  Cards.findById(req.params.cardId).then((card) => {
-    if (!card) {
-      return next(new NotFoundError('Карточка с указанным id не найдена.'));
-    };
-    if (req.user._id === card.owner.toString()) {
-      Cards.findByIdAndRemove(req.params.cardId)
-        .then(() => {
-          res.send({ data: card });
-        })
-        .catch((err) => {
-          if (err.name === 'CastError') {
-            next(new WrongDataError('неверные данные'));
-            return;
-          }
-          next(err);
-        });
-      return;
-    }
-    throw new DeleteError('Невозможно удалить карту других пользователей');
-  })
-    .catch((err) => next(err));
+  Cards.findById(req.params.cardId)
+    .then((card) => {
+      if (!card) {
+        return next(new NotFoundError('Карточка с указанным id не найдена.'));
+      }
+      if (card.owner.toString() !== req.user._id) {
+        return next(new DeleteError('Нет доступа к удалению карточки'));
+      }
+      return Cards.findByIdAndDelete(req.params.cardId).then(() => {
+        res.status(200).send({ message: 'Карточка удалена.' });
+      });
+    })
+    .catch((err) => {
+      if (err.kind === 'ObjectId') {
+        return next(new WrongDataError('Некорректный id карточки'));
+      }
+      return next(new ServerError('Произошла ошибка'));
+    });
 };
 
 module.exports = {
