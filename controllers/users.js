@@ -120,14 +120,33 @@ const updateUserAvatar = (req, res, next) => {
 
 const login = (req, res, next) => {
   const { email, password } = req.body;
-  return User.findUserByCredentials(email, password)
+  if (!email || !password) {
+    throw new ValidationError('Не верный логин или пароль');
+  }
+  const validEmail = validator.isEmail(email);
+  if (!validEmail) {
+    throw new ValidationError('Некоректный email');
+  }
+  User.findOne({ email }).select('+password')
     .then((user) => {
-      const token = jwt.sign({ _id: user._id }, 'some-secret-key', { expiresIn: '7d' });
-      res.send({ token });
+      if (!user) {
+        throw new UnauthorizedError('Неправильные почта или пароль');
+      }
+      return bcrypt.compare(password, user.password)
+        .then((matched) => {
+          if (!matched) {
+            throw new UnauthorizedError('Неправильные почта или пароль');
+          }
+          return user;
+        });
     })
-    .catch(() => {
-      next(new AuthError('Неверный логин или пароль'));
-    });
+    .then((user) => generateToken({ id: user._id }))
+    .then((token) => res.status(200).send({ token }))
+    .catch(
+      (err) => {
+        next(err);
+      },
+    );
 };
 
 module.exports = {
